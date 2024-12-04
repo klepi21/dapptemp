@@ -1,54 +1,57 @@
-import React, { Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
+'use client'
+
+import React, { useState, useRef, useEffect } from 'react';
 import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks';
 import { logout } from '@multiversx/sdk-dapp/utils';
-import { ChevronDown, LogOut, User } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Card } from '@/components/ui/Card';
+import { LogOut, User, ChevronDown } from 'lucide-react';
 
 export const ProfileButton = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { address } = useGetAccountInfo();
   const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
-  return (
-    <Menu as="div" className="relative inline-block text-left">
-      <Menu.Button className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-        <User className="h-5 w-5 mr-2 text-gray-400" />
-        {shortAddress}
-        <ChevronDown className="h-5 w-5 ml-2 text-gray-400" />
-      </Menu.Button>
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
 
-      <Transition
-        as={Fragment}
-        enter="transition ease-out duration-100"
-        enterFrom="transform opacity-0 scale-95"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-75"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-95"
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-light-hover dark:bg-surface-dark-hover text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
       >
-        <Menu.Items className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none">
-          <div className="px-4 py-3">
-            <p className="text-sm text-gray-900">Connected Address</p>
-            <p className="text-sm font-mono text-gray-500 truncate">{address}</p>
-          </div>
-          <div className="py-1">
-            <Menu.Item>
-              {({ active }) => (
-                <button
-                  onClick={() => logout()}
-                  className={clsx(
-                    active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                    'group flex items-center w-full px-4 py-2 text-sm'
-                  )}
-                >
-                  <LogOut className="h-5 w-5 mr-3 text-gray-400 group-hover:text-gray-500" />
-                  Disconnect
-                </button>
-              )}
-            </Menu.Item>
-          </div>
-        </Menu.Items>
-      </Transition>
-    </Menu>
+        <User className="h-4 w-4" />
+        <span className="text-sm font-medium">{shortAddress}</span>
+        <ChevronDown className="h-4 w-4" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-64 z-50">
+          <Card className="p-2">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-2 p-2 text-sm text-red-600 dark:text-red-400 hover:bg-surface-light-hover dark:hover:bg-surface-dark-hover rounded-lg transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              Disconnect
+            </button>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 };

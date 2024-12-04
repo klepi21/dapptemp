@@ -1,6 +1,18 @@
+'use client'
+
 import React from 'react';
-import { TokenData } from '@/hooks/useGetTokens';
 import Image from 'next/image';
+
+export interface TokenData {
+  identifier: string;
+  name: string;
+  ticker: string;
+  decimals: number;
+  balance: string;
+  price: number;
+  valueUsd: number;
+  icon?: string;
+}
 
 interface TokenListItemProps {
   token: TokenData;
@@ -23,37 +35,37 @@ export const TokenListItem = ({ token }: TokenListItemProps) => {
   });
 
   return (
-    <tr className="hover:bg-stone-50">
+    <tr className="hover:bg-surface-light-hover dark:hover:bg-surface-dark-hover transition-colors">
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           {token.icon ? (
             <Image
               src={token.icon}
               alt={token.name}
-              width={24}
-              height={24}
-              className="flex-shrink-0"
+              width={32}
+              height={32}
+              className="rounded-full"
             />
           ) : (
-            <div className="w-6 h-6 bg-stone-200 rounded-full flex-shrink-0" />
+            <div className="w-8 h-8 bg-stone-200 dark:bg-stone-700 rounded-full" />
           )}
           <div className="ml-4">
-            <div className="text-sm font-medium text-stone-900">
+            <div className="text-sm font-medium text-stone-900 dark:text-white">
               {token.name}
             </div>
-            <div className="text-sm text-stone-500">
+            <div className="text-sm text-stone-500 dark:text-stone-400">
               {token.ticker}
             </div>
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900">
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900 dark:text-white">
         {formattedBalance}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900">
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900 dark:text-white">
         {formattedPrice}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900">
+      <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-stone-900 dark:text-white">
         {formattedValue}
       </td>
     </tr>

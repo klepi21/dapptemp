@@ -1,17 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks';
-import { mvxConfig } from '../config/config';
+'use client'
 
-export interface TokenData {
-  identifier: string;
-  name: string;
-  ticker: string;
-  balance: string;
-  decimals: number;
-  price: number;
-  valueUsd: number;
-  icon?: string;
-}
+import { useState, useEffect } from 'react';
+import { useGetAccountInfo } from '@multiversx/sdk-dapp/hooks';
+import { TokenData } from '@/components/portfolio/TokenListItem';
 
 export const useGetTokens = () => {
   const { address } = useGetAccountInfo();
@@ -21,35 +12,31 @@ export const useGetTokens = () => {
 
   useEffect(() => {
     const fetchTokens = async () => {
-      if (!address) return;
+      if (!address) {
+        setTokens([]);
+        setIsLoading(false);
+        return;
+      }
 
       try {
-        // Fetch tokens
-        const response = await fetch(
-          `${mvxConfig.apiUrl}/accounts/${address}/tokens?size=100`
-        );
+        const response = await fetch(`https://api.multiversx.com/accounts/${address}/tokens`);
+        if (!response.ok) throw new Error('Failed to fetch tokens');
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch tokens');
-        }
-
         const data = await response.json();
-
-        // Transform the data
-        const transformedTokens = data.map((token: any) => ({
+        const mappedTokens: TokenData[] = data.map((token: any) => ({
           identifier: token.identifier,
           name: token.name,
           ticker: token.ticker,
-          balance: token.balance,
           decimals: token.decimals,
+          balance: token.balance,
           price: token.price || 0,
-          valueUsd: (Number(token.balance) / Math.pow(10, token.decimals)) * (token.price || 0),
-          icon: token.assets?.svgUrl || token.assets?.pngUrl
+          valueUsd: token.balance * (token.price || 0),
+          icon: token.assets?.svgUrl
         }));
 
-        setTokens(transformedTokens);
+        setTokens(mappedTokens);
         setError(null);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error fetching tokens:', err);
         setError(err instanceof Error ? err : new Error('Failed to fetch tokens'));
       } finally {

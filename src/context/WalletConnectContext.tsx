@@ -1,32 +1,37 @@
 'use client'
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { ExtensionLoginButton, WalletConnectLoginButton, WebWalletLoginButton } from '@multiversx/sdk-dapp/UI';
+import { routeNames } from '@/routes';
 
 interface WalletConnectContextType {
   isOpen: boolean;
-  openModal: () => void;
-  closeModal: () => void;
+  handleConnect: () => void;
+  handleClose: () => void;
 }
 
-const WalletConnectContext = createContext<WalletConnectContextType | undefined>(undefined);
+const WalletConnectContext = createContext<WalletConnectContextType>({
+  isOpen: false,
+  handleConnect: () => {},
+  handleClose: () => {},
+});
 
-export const WalletConnectProvider = ({ children }: { children: ReactNode }) => {
+export const WalletConnectProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
+  const handleConnect = () => setIsOpen(true);
+  const handleClose = () => setIsOpen(false);
+
+  const commonProps = {
+    callbackRoute: routeNames.dashboard,
+    onClose: handleClose,
+  };
 
   return (
-    <WalletConnectContext.Provider value={{ isOpen, openModal, closeModal }}>
+    <WalletConnectContext.Provider value={{ isOpen, handleConnect, handleClose }}>
       {children}
     </WalletConnectContext.Provider>
   );
 };
 
-export const useWalletConnect = () => {
-  const context = useContext(WalletConnectContext);
-  if (context === undefined) {
-    throw new Error('useWalletConnect must be used within a WalletConnectProvider');
-  }
-  return context;
-};
+export const useWalletConnect = () => useContext(WalletConnectContext);
