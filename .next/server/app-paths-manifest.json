@@ -1,9 +1,6 @@
 {
   "/not-found": "app/not-found.js",
-  "/liquid-funds/[id]/page": "app/liquid-funds/[id]/page.js",
-  "/liquid-funds/page": "app/liquid-funds/page.js",
   "/page": "app/page.js",
-  "/tutorial/page": "app/tutorial/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/portfolio/page": "app/portfolio/page.js"
 }
